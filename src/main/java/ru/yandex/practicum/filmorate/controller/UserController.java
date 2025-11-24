@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User addUser(@RequestBody User user) {
+    public User addUser(@Valid @RequestBody User user) {
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             log.warn("Попытка добавить пользователя без корректного email адреса");
             throw new ValidationException("Email пользователя не должен быть пустым и обязательно должен содержать @");
@@ -59,7 +60,7 @@ public class UserController {
 
 
     @PutMapping
-    public User updateUser(@RequestBody User newUser) {
+    public User updateUser(@Valid @RequestBody User newUser) {
         if (newUser.getId() <= 0) {
             log.warn("Попытка обновить пользователя с некорректным id {}", newUser.getId());
             throw new ValidationException("Id не может быть меньше 1");
