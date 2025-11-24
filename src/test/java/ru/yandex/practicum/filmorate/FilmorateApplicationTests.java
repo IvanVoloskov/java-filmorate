@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FilmControllerTest {
+class FilmorateApplicationTests {
 
     private FilmController filmController;
 
@@ -25,7 +25,7 @@ class FilmControllerTest {
         Film film = new Film();
         film.setDescription("Описание");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setDuration(Duration.ofMinutes(120));
+        film.setDuration(120);
 
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> filmController.addFilm(film));
@@ -38,7 +38,7 @@ class FilmControllerTest {
         film.setName("Фильм");
         film.setDescription("A".repeat(201));
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setDuration(Duration.ofMinutes(120));
+        film.setDuration(120);
 
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> filmController.addFilm(film));
@@ -51,7 +51,7 @@ class FilmControllerTest {
         film.setName("Фильм");
         film.setDescription("Описание");
         film.setReleaseDate(LocalDate.of(1800, 1, 1));
-        film.setDuration(Duration.ofMinutes(120));
+        film.setDuration(120);
 
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> filmController.addFilm(film));
@@ -64,7 +64,7 @@ class FilmControllerTest {
         film.setName("Фильм");
         film.setDescription("Описание");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setDuration(Duration.ofMinutes(0));
+        film.setDuration(0);
 
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> filmController.addFilm(film));
@@ -77,7 +77,7 @@ class FilmControllerTest {
         film.setName("Фильм");
         film.setDescription("Описание");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
-        film.setDuration(Duration.ofMinutes(120));
+        film.setDuration(120);
 
         Film addedFilm = filmController.addFilm(film);
 

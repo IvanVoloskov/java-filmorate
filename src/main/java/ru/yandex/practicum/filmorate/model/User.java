@@ -13,10 +13,8 @@ public class User {
     @Email
     String email;
     @NotBlank
-    @NonNull
     String login;
     @NotBlank
-    @NonNull
     String name;
     LocalDate birthday;
 }

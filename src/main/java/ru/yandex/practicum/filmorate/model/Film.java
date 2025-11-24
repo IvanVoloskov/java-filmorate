@@ -10,9 +10,7 @@ import java.time.LocalDate;
 public class Film {
     int id;
     @NotBlank
-    @NonNull
     String name;
-    @NonNull
     @NotBlank
     String description;
     LocalDate releaseDate;
