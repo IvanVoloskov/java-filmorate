@@ -14,21 +14,21 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final static Logger log = LoggerFactory.getLogger(FilmController.class);
+    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private final Map<Integer, Film> films = new HashMap<>();
 
     @GetMapping
-    public Collection<Film> getAllFilms () {
+    public Collection<Film> getAllFilms() {
         return films.values();
     }
 
     @PostMapping
-    public Film addFilm (@RequestBody Film film) {
+    public Film addFilm(@RequestBody Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.warn("Попытка добавить фильм без названия");
             throw new ValidationException("название не может быть пустым");
         }
-        if (film.getDescription() != null && film.getDescription().length()>200) {
+        if (film.getDescription() != null && film.getDescription().length() > 200) {
             log.warn("описание фильм слишком большое: {}", film.getDescription().length());
             throw new ValidationException("Максимальная длина описания фильма - 200 символов");
         }
@@ -37,7 +37,7 @@ public class FilmController {
             log.warn("Попытка добавить фильм, выпущенный до 1895 года");
             throw new ValidationException("Фильм не должен быть выпущен раньше 28 декабря 1895 года");
         }
-        if (film.getDuration() <= 0){
+        if (film.getDuration() <= 0) {
             log.warn("Некорректная продолжительность фильма {}", film.getDuration());
             throw new ValidationException("Продолжительность фильма всегда положительная!");
         }
