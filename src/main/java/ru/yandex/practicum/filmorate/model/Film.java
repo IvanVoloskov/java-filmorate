@@ -10,7 +10,6 @@ public class Film {
     int id;
     @NotBlank
     String name;
-    @NotBlank
     String description;
     LocalDate releaseDate;
     int duration;

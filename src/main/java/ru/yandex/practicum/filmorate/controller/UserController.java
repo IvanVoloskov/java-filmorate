@@ -26,21 +26,11 @@ public class UserController {
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.warn("Попытка добавить пользователя без корректного email адреса");
-            throw new ValidationException("Email пользователя не должен быть пустым и обязательно должен содержать @");
-        }
-
         for (User u : users.values()) {
             if (user.getEmail().equals(u.getEmail())) {
                 log.warn("Попытка добавить пользователя, email которого уже используется");
                 throw new ValidationException("Этот email уже используется");
             }
-        }
-
-        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.warn("Попытка добавить пользователя с некорректным логином");
-            throw new ValidationException("Логин пользователя не может быть пустым или содержать пробелы");
         }
 
         if (user.getName() == null || user.getName().isBlank()) {
@@ -69,24 +59,15 @@ public class UserController {
         if (oldUser == null) {
             throw new NotFoundException("Пользователь с таким id не найден");
         }
-        if (newUser.getEmail() != null) {
-            if (newUser.getEmail().isBlank() || !newUser.getEmail().contains("@")) {
-                throw new ValidationException("Email пользователя не должен быть пустым " +
-                        "и обязательно должен содержать @");
+
+        for (User u : users.values()) {
+            if (u.getId() != (newUser.getId()) && newUser.getEmail().equals(u.getEmail())) {
+                throw new ValidationException("Этот email уже используется");
             }
-            for (User u : users.values()) {
-                if (u.getId() != (newUser.getId()) && newUser.getEmail().equals(u.getEmail())) {
-                    throw new ValidationException("Этот email уже используется");
-                }
-            }
-            oldUser.setEmail(newUser.getEmail());
         }
-        if (newUser.getLogin() != null) {
-            if (newUser.getLogin().isBlank() || newUser.getLogin().contains(" ")) {
-                throw new ValidationException("Логин пользователя не может быть пустым или содержать пробелы");
-            }
-            oldUser.setLogin(newUser.getLogin());
-        }
+
+        oldUser.setEmail(newUser.getEmail());
+
         if (newUser.getName() != null && !newUser.getName().isBlank()) {
             oldUser.setName(newUser.getName());
         } else if (oldUser.getName() == null || oldUser.getName().isBlank()) {
