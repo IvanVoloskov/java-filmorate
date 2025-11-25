@@ -16,7 +16,7 @@ class FilmorateApplicationTests {
 
     @BeforeEach
     void setup() {
-        filmController = new FilmController(); // создаём экземпляр контроллера
+        filmController = new FilmController();
     }
 
     @Test
