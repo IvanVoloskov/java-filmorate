@@ -97,7 +97,7 @@ class UserControllerTest {
 
         User update = new User();
         update.setId(added.getId());
-        update.setEmail("user7@example.com"); 
+        update.setEmail("user7@example.com");
         update.setLogin("updatedLogin");
         update.setName("Updated Name");
         update.setBirthday(LocalDate.of(1991, 2, 2));
