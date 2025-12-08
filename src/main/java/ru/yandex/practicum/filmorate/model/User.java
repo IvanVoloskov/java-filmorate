@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Data
 public class User {
     int id;
-    @Email
+    @Email(message = "Not valid email format")
     @NotBlank
     String email;
     @NotBlank
