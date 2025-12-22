@@ -55,7 +55,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         Film oldFilm = films.get(newFilm.getId());
         if (oldFilm == null) {
             log.warn("Фильма с id {} нет в коллекции", newFilm.getId());
-            throw new ValidationException("Фильм с таким id не найден");
+            throw new NotFoundException("Фильм с таким id не найден");
         }
         if (newFilm.getName() != null && !newFilm.getName().isBlank()) {
             oldFilm.setName(newFilm.getName());

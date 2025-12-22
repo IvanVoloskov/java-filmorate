@@ -82,10 +82,16 @@ public class InMemoryUserStorage implements UserStorage {
 
 
     private void validateEmailUnique(String email, Integer currentUserId) {
-        if (email == null) return;
+        if (email == null || email.isBlank()) {
+            throw new ValidationException("Email не может быть пустым");
+        }
+
+        if (!email.contains("@")) {
+            throw new ValidationException("Некорректный формат email");
+        }
 
         boolean exists = users.values().stream()
-                .anyMatch(u -> u.getEmail().equals(email)
+                .anyMatch(u -> u.getEmail().equalsIgnoreCase(email.trim())
                         && (currentUserId == null || u.getId() != currentUserId));
 
         if (exists) {

@@ -42,6 +42,9 @@ public class UserService {
         }
         User user = userStorage.getById(idUser);
         User friend = userStorage.getById(idFriend);
+        if (user.getFriends().contains(idFriend)) {
+            throw new ValidationException("Пользователи уже являются друзьями");
+        }
         user.getFriends().add(idFriend);
         friend.getFriends().add(idUser);
         log.info("Пользователь {} добавил в друзья пользователя {}", idUser, idFriend);
@@ -53,8 +56,11 @@ public class UserService {
         }
         User user = userStorage.getById(idUser);
         User friend = userStorage.getById(idFriend);
-        user.getFriends().remove(friend.getId());
-        friend.getFriends().remove(user.getId());
+        if (!user.getFriends().contains(idFriend)) {
+            throw new ValidationException("Пользователи не являются друзьями");
+        }
+        user.getFriends().remove((Integer) friend.getId());
+        friend.getFriends().remove((Integer) user.getId());
         log.info("Пользователь {} удалил из друзей пользователя {}", idUser, idFriend);
     }
 
