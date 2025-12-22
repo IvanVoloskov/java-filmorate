@@ -5,7 +5,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -34,8 +36,16 @@ public class UserController {
     }
 
     @GetMapping("/{idUser}/friends")
-    public Set<Integer> getAllFriends(@PathVariable int idUser) {
-        return userService.getAllFriends(idUser);
+    public Collection<User> getAllFriends(@PathVariable int idUser) {
+        Set<Integer> friendIds = userService.getAllFriends(idUser);
+
+        // Преобразуем ID в объекты User
+        List<User> friends = new ArrayList<>();
+        for (Integer friendId : friendIds) {
+            friends.add(userService.getById(friendId));
+        }
+
+        return friends;
     }
 
     @GetMapping("/{idUser}/friends/common/{otherId}")

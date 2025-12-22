@@ -56,9 +56,6 @@ public class UserService {
         }
         User user = userStorage.getById(idUser);
         User friend = userStorage.getById(idFriend);
-        if (!user.getFriends().contains(idFriend)) {
-            throw new ValidationException("Пользователи не являются друзьями");
-        }
         user.getFriends().remove((Integer) friend.getId());
         friend.getFriends().remove((Integer) user.getId());
         log.info("Пользователь {} удалил из друзей пользователя {}", idUser, idFriend);
