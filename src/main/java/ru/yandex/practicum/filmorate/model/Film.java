@@ -10,7 +10,7 @@ import java.util.Set;
 @Data
 public class Film {
     int id;
-    @NotBlank
+    @NotBlank(message = "Название фильма не может быть пустым")
     String name;
     String description;
     LocalDate releaseDate;
