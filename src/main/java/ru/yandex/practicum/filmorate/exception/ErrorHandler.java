@@ -39,7 +39,7 @@ public class ErrorHandler {
         return new ErrorResponse("error", errorMessage);
     }
 
-    @ExceptionHandler(Throwable.class)
+    @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR) // 500
     public ErrorResponse handleException(final Exception e) {
         log.error("Внутренняя ошибка сервера: ", e);

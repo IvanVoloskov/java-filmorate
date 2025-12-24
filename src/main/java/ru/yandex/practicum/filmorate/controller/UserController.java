@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -10,15 +11,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping
     public Collection<User> getAllUsers() {
@@ -36,7 +34,7 @@ public class UserController {
     }
 
     @GetMapping("/{idUser}/friends")
-    public Collection<User> getAllFriends(@PathVariable int idUser) {
+    public Collection<User> getAllFriends(@PathVariable Integer idUser) {
         Set<Integer> friendIds = userService.getAllFriends(idUser);
 
         // Преобразуем ID в объекты User
@@ -49,22 +47,22 @@ public class UserController {
     }
 
     @GetMapping("/{idUser}/friends/common/{otherId}")
-    public Collection<User> getCommonFriends(@PathVariable int idUser, @PathVariable int otherId) {
+    public Collection<User> getCommonFriends(@PathVariable Integer idUser, @PathVariable Integer otherId) {
         return userService.getCommonFriends(idUser, otherId);
     }
 
     @PutMapping("/{idUser}/friends/{idFriend}")
-    public void addFriend(@PathVariable int idUser, @PathVariable int idFriend) {
+    public void addFriend(@PathVariable Integer idUser, @PathVariable Integer idFriend) {
         userService.addFriend(idUser, idFriend);
     }
 
     @DeleteMapping("/{idUser}/friends/{idFriend}")
-    public void removeFriend(@PathVariable int idUser, @PathVariable int idFriend) {
+    public void removeFriend(@PathVariable Integer idUser, @PathVariable Integer idFriend) {
         userService.removeFriend(idUser, idFriend);
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable int id) {
+    public User getUserById(@PathVariable Integer id) {
         return userService.getById(id);
     }
 

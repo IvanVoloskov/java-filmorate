@@ -51,21 +51,10 @@ public class InMemoryUserStorage implements UserStorage {
         validateLogin(newUser.getLogin());
         validateBirthday(newUser.getBirthday());
 
-        // Обновление только тех полей, которые пришли
-        if (newUser.getEmail() != null) {
-            oldUser.setEmail(newUser.getEmail());
-        }
-        if (newUser.getLogin() != null) {
-            oldUser.setLogin(newUser.getLogin());
-        }
-        if (newUser.getName() != null && !newUser.getName().isBlank()) {
-            oldUser.setName(newUser.getName());
-        } else {
-            setNameIfBlank(oldUser);
-        }
-        if (newUser.getBirthday() != null) {
-            oldUser.setBirthday(newUser.getBirthday());
-        }
+        oldUser.setEmail(newUser.getEmail());
+        oldUser.setLogin(newUser.getLogin());
+        oldUser.setName(newUser.getName());
+        oldUser.setBirthday(newUser.getBirthday());
 
         log.info("Пользователь {} с id = {} обновлён", oldUser.getName(), oldUser.getId());
         return oldUser;
@@ -84,10 +73,6 @@ public class InMemoryUserStorage implements UserStorage {
     private void validateEmailUnique(String email, Integer currentUserId) {
         if (email == null || email.isBlank()) {
             throw new ValidationException("Email не может быть пустым");
-        }
-
-        if (!email.contains("@")) {
-            throw new ValidationException("Некорректный формат email");
         }
 
         boolean exists = users.values().stream()
