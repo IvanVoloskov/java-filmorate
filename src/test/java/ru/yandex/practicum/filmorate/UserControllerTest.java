@@ -102,13 +102,12 @@ class UserControllerTest {
         User added = controller.addUser(user);
 
         User update = new User();
-        update.setId(added.getId());
         update.setEmail("user7@example.com");
         update.setLogin("updatedLogin");
         update.setName("Updated Name");
         update.setBirthday(LocalDate.of(1991, 2, 2));
 
-        User updated = controller.updateUser(update);
+        User updated = controller.updateUser(added.getId(), update);
 
         assertEquals("updatedLogin", updated.getLogin());
         assertEquals("Updated Name", updated.getName());

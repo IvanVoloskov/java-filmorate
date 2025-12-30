@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -16,6 +17,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserService {
 
+    @Qualifier("userDbStorage")
     private final UserStorage userStorage;
 
     public Collection<User> getAllUsers() {
@@ -35,33 +37,17 @@ public class UserService {
     }
 
     public void addFriend(int idUser, int idFriend) {
-        if (idUser == idFriend) {
-            throw new ValidationException("Пользователь не может добавить сам себя");
-        }
-        User user = userStorage.getById(idUser);
-        User friend = userStorage.getById(idFriend);
-        if (user.getFriends().contains(idFriend)) {
-            throw new ValidationException("Пользователи уже являются друзьями");
-        }
-        user.getFriends().add(idFriend);
-        friend.getFriends().add(idUser);
+        userStorage.addFriend(idUser, idFriend);
         log.info("Пользователь {} добавил в друзья пользователя {}", idUser, idFriend);
     }
 
     public void removeFriend(int idUser, int idFriend) {
-        if (idUser == idFriend) {
-            throw new ValidationException("Пользователь не может удалить сам себя");
-        }
-        User user = userStorage.getById(idUser);
-        User friend = userStorage.getById(idFriend);
-        user.getFriends().remove((Integer) friend.getId());
-        friend.getFriends().remove((Integer) user.getId());
+        userStorage.removeFriend(idUser, idFriend);
         log.info("Пользователь {} удалил из друзей пользователя {}", idUser, idFriend);
     }
 
     public Set<Integer> getAllFriends(int idUser) {
-        User user = userStorage.getById(idUser);
-        return new HashSet<>(user.getFriends());
+        return userStorage.getFriends(idUser);
     }
 
     public Collection<User> getCommonFriends(int idUser, int otherId) {

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -10,9 +11,10 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
-@Component
+@Qualifier("userMemoryStorage")
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
 
@@ -69,6 +71,42 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
+    @Override
+    public void addFriend(int userId, int friendId) {
+        User user = users.get(userId);
+        User friend = users.get(friendId);
+
+        if (user == null || friend == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+
+        user.getFriends().add(friendId);
+        friend.getFriends().add(userId);
+        log.info("Пользователь {} добавил в друзья {} (in-memory)", userId, friendId);
+    }
+
+    @Override
+    public void removeFriend(int userId, int friendId) {
+        User user = users.get(userId);
+        User friend = users.get(friendId);
+
+        if (user == null || friend == null) {
+            throw new NotFoundException("Пользователь не найден");
+        }
+
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(userId);
+        log.info("Пользователь {} удалил из друзей {} (in-memory)", userId, friendId);
+    }
+
+    @Override
+    public Set<Integer> getFriends(int userId) {
+        User user = users.get(userId);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
+        }
+        return user.getFriends();
+    }
 
     private void validateEmailUnique(String email, Integer currentUserId) {
         if (email == null || email.isBlank()) {
