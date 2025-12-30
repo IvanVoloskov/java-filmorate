@@ -12,15 +12,14 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 class FilmorateApplicationTests {
 
     private FilmController filmController;
 
     @BeforeEach
     void setup() {
-        InMemoryFilmStorage filmStorage = new InMemoryFilmStorage(); // твоя реализация
-        FilmService filmService = new FilmService(filmStorage); // если нужны лайки, можно mock UserStorage
+        InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
+        FilmService filmService = new FilmService(filmStorage);
         filmController = new FilmController(filmService);
     }
 
@@ -90,4 +89,5 @@ class FilmorateApplicationTests {
         assertEquals("Фильм", addedFilm.getName());
         assertEquals(1, addedFilm.getId());
     }
-};
+
+}
