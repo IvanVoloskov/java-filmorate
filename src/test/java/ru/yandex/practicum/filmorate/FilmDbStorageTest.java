@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -8,6 +8,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -29,7 +31,7 @@ class FilmDbStorageTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
-        film.setMpa_id(1);
+        film.setMpaId(1);
 
         Film addedFilm = filmStorage.addFilm(film);
 
@@ -45,7 +47,7 @@ class FilmDbStorageTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
-        film.setMpa_id(1);
+        film.setMpaId(1);
 
         Film addedFilm = filmStorage.addFilm(film);
         Film foundFilm = filmStorage.getById(addedFilm.getId());
@@ -63,7 +65,7 @@ class FilmDbStorageTest {
         film1.setDescription("Test Description 1");
         film1.setReleaseDate(LocalDate.of(2020, 1, 1));
         film1.setDuration(120);
-        film1.setMpa_id(1);
+        film1.setMpaId(1);
         filmStorage.addFilm(film1);
 
         Film film2 = new Film();
@@ -71,7 +73,7 @@ class FilmDbStorageTest {
         film2.setDescription("Test Description 2");
         film2.setReleaseDate(LocalDate.of(2021, 5, 15));
         film2.setDuration(90);
-        film2.setMpa_id(2);
+        film2.setMpaId(2);
         filmStorage.addFilm(film2);
 
         Collection<Film> films = filmStorage.getAllFilms();
@@ -86,7 +88,7 @@ class FilmDbStorageTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
-        film.setMpa_id(1);
+        film.setMpaId(1);
 
         Film addedFilm = filmStorage.addFilm(film);
 
@@ -106,7 +108,7 @@ class FilmDbStorageTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
-        film.setMpa_id(1);
+        film.setMpaId(1);
         Film addedFilm = filmStorage.addFilm(film);
 
         User user = new User();
@@ -131,7 +133,7 @@ class FilmDbStorageTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
-        film.setMpa_id(1);
+        film.setMpaId(1);
         Film addedFilm = filmStorage.addFilm(film);
 
         User user = new User();
@@ -156,7 +158,7 @@ class FilmDbStorageTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
-        film.setMpa_id(1);
+        film.setMpaId(1);
         Film addedFilm = filmStorage.addFilm(film);
 
         User user = new User();
