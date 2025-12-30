@@ -12,9 +12,7 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-
     private final FilmService filmService;
-
 
     @GetMapping
     public Collection<Film> getAllFilms() {
@@ -34,12 +32,14 @@ public class FilmController {
 
     @PutMapping("/{idFilm}/like/{idUser}")
     public void addLike(@PathVariable Integer idFilm, @PathVariable Integer idUser) {
-        filmService.addLike(idUser, idFilm);
+        // ИСПРАВЛЕНО: правильный порядок параметров (filmId, userId)
+        filmService.addLike(idFilm, idUser);
     }
 
     @DeleteMapping("/{idFilm}/like/{idUser}")
     public void removeLike(@PathVariable Integer idFilm, @PathVariable Integer idUser) {
-        filmService.removeLike(idUser, idFilm);
+        // ИСПРАВЛЕНО: правильный порядок параметров (filmId, userId)
+        filmService.removeLike(idFilm, idUser);
     }
 
     @GetMapping("/popular")

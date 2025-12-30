@@ -164,7 +164,7 @@ public class UserDbStorage implements UserStorage {
         Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class,
                 userId, friendId, friendId, userId);
 
-        if (count != null && count > 0) {
+        if (count > 0) {
             throw new ValidationException("Пользователи уже являются друзьями");
         }
 

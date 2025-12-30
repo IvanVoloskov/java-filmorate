@@ -12,6 +12,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 class FilmorateApplicationTests {
 
     private FilmController filmController;
@@ -19,7 +20,7 @@ class FilmorateApplicationTests {
     @BeforeEach
     void setup() {
         InMemoryFilmStorage filmStorage = new InMemoryFilmStorage(); // твоя реализация
-        FilmService filmService = new FilmService(filmStorage, null); // если нужны лайки, можно mock UserStorage
+        FilmService filmService = new FilmService(filmStorage); // если нужны лайки, можно mock UserStorage
         filmController = new FilmController(filmService);
     }
 
@@ -32,7 +33,7 @@ class FilmorateApplicationTests {
 
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> filmController.addFilm(film));
-        assertEquals("название не может быть пустым", exception.getMessage());
+        assertEquals("Название не может быть пустым", exception.getMessage());
     }
 
     @Test
@@ -71,7 +72,7 @@ class FilmorateApplicationTests {
 
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> filmController.addFilm(film));
-        assertEquals("Продолжительность фильма всегда положительная!", exception.getMessage());
+        assertEquals("Продолжительность фильма должна быть положительной", exception.getMessage());
     }
 
     @Test
@@ -81,6 +82,7 @@ class FilmorateApplicationTests {
         film.setDescription("Описание");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(120);
+        film.setMpaId(1);
 
         Film addedFilm = filmController.addFilm(film);
 
@@ -88,4 +90,4 @@ class FilmorateApplicationTests {
         assertEquals("Фильм", addedFilm.getName());
         assertEquals(1, addedFilm.getId());
     }
-}
+};

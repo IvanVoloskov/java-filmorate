@@ -26,7 +26,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film addFilm(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.warn("Попытка добавить фильм без названия");
-            throw new ValidationException("название не может быть пустым");
+            throw new ValidationException("Название не может быть пустым");
         }
         if (film.getDescription() != null && film.getDescription().length() > 200) {
             log.warn("описание фильм слишком большое: {}", film.getDescription().length());
@@ -39,7 +39,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         if (film.getDuration() <= 0) {
             log.warn("Некорректная продолжительность фильма {}", film.getDuration());
-            throw new ValidationException("Продолжительность фильма всегда положительная!");
+            throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
         film.setId(getNextId());
         films.put(film.getId(), film);

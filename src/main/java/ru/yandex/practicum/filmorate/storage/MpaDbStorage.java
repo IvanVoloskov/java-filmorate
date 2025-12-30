@@ -22,7 +22,7 @@ public class MpaDbStorage implements MpaStorage {
         Mpa mpa = new Mpa();
         mpa.setId(rs.getInt("mpa_id"));
         mpa.setCode(rs.getString("code"));
-        mpa.setName(rs.getString("code"));
+        mpa.setName(rs.getString("name"));
         return mpa;
     };
 

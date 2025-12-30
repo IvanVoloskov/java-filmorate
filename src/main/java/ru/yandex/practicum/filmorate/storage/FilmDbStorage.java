@@ -73,6 +73,10 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
 
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+
+        // ДОБАВЛЕНО: сохранение жанров фильма
+        saveFilmGenres(film.getId(), film.getGenres());
+
         return film;
     }
 
@@ -98,7 +102,9 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("Фильм с ID " + film.getId() + " не найден");
         }
 
-        // Перезагружаем фильм с обновлёнными likes и genres
+        // ДОБАВЛЕНО: обновление жанров фильма
+        updateFilmGenres(film.getId(), film.getGenres());
+
         return getById(film.getId());
     }
 
@@ -127,7 +133,6 @@ public class FilmDbStorage implements FilmStorage {
         try {
             jdbcTemplate.update(sql, filmId, userId);
         } catch (Exception e) {
-            // Возможно, дублирующая запись — игнорируем
             log.warn("Пользователь {} уже поставил лайк фильму {}", userId, filmId);
         }
     }
@@ -161,5 +166,27 @@ public class FilmDbStorage implements FilmStorage {
             log.error("Ошибка при получении жанров для фильма ID {}: {}", filmId, e.getMessage());
             return new HashSet<>();
         }
+    }
+
+    // ДОБАВЛЕНО: метод для сохранения жанров фильма
+    private void saveFilmGenres(int filmId, Set<Integer> genres) {
+        if (genres == null || genres.isEmpty()) {
+            return;
+        }
+
+        // Удаляем старые жанры (на случай обновления)
+        String deleteSql = "DELETE FROM film_genres WHERE film_id = ?";
+        jdbcTemplate.update(deleteSql, filmId);
+
+        // Добавляем новые жанры
+        String insertSql = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
+        for (Integer genreId : genres) {
+            jdbcTemplate.update(insertSql, filmId, genreId);
+        }
+    }
+
+    // ДОБАВЛЕНО: метод для обновления жанров фильма
+    private void updateFilmGenres(int filmId, Set<Integer> genres) {
+        saveFilmGenres(filmId, genres); // Используем тот же метод
     }
 }
