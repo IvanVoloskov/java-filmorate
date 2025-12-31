@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
@@ -31,7 +32,9 @@ class FilmDbStorageTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
-        film.setMpaId(1);
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        film.setMpa(mpa);
 
         Film addedFilm = filmStorage.addFilm(film);
 
@@ -47,7 +50,11 @@ class FilmDbStorageTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
-        film.setMpaId(1);
+
+        // ИСПРАВЛЕНО: setMpaId() на setMpa() с объектом Mpa
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        film.setMpa(mpa);
 
         Film addedFilm = filmStorage.addFilm(film);
         Film foundFilm = filmStorage.getById(addedFilm.getId());
@@ -65,7 +72,12 @@ class FilmDbStorageTest {
         film1.setDescription("Test Description 1");
         film1.setReleaseDate(LocalDate.of(2020, 1, 1));
         film1.setDuration(120);
-        film1.setMpaId(1);
+
+        // ИСПРАВЛЕНО
+        Mpa mpa1 = new Mpa();
+        mpa1.setId(1);
+        film1.setMpa(mpa1);
+
         filmStorage.addFilm(film1);
 
         Film film2 = new Film();
@@ -73,7 +85,12 @@ class FilmDbStorageTest {
         film2.setDescription("Test Description 2");
         film2.setReleaseDate(LocalDate.of(2021, 5, 15));
         film2.setDuration(90);
-        film2.setMpaId(2);
+
+        // ИСПРАВЛЕНО
+        Mpa mpa2 = new Mpa();
+        mpa2.setId(2);
+        film2.setMpa(mpa2);
+
         filmStorage.addFilm(film2);
 
         Collection<Film> films = filmStorage.getAllFilms();
@@ -88,12 +105,21 @@ class FilmDbStorageTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
-        film.setMpaId(1);
+
+        // ИСПРАВЛЕНО
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        film.setMpa(mpa);
 
         Film addedFilm = filmStorage.addFilm(film);
 
         addedFilm.setName("Updated Film");
         addedFilm.setDuration(150);
+
+        // Обновляем MPA (если нужно)
+        Mpa newMpa = new Mpa();
+        newMpa.setId(2);
+        addedFilm.setMpa(newMpa);
 
         Film updatedFilm = filmStorage.updateFilm(addedFilm);
 
@@ -108,7 +134,12 @@ class FilmDbStorageTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
-        film.setMpaId(1);
+
+        // ИСПРАВЛЕНО
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        film.setMpa(mpa);
+
         Film addedFilm = filmStorage.addFilm(film);
 
         User user = new User();
@@ -120,6 +151,7 @@ class FilmDbStorageTest {
 
         filmStorage.addLike(addedFilm.getId(), addedUser.getId());
 
+        // ИСПРАВЛЕНО: getLikes() возвращает Set<Integer>, приводим к Collection
         Collection<Integer> likes = filmStorage.getLikes(addedFilm.getId());
 
         assertThat(likes).hasSize(1);
@@ -133,7 +165,12 @@ class FilmDbStorageTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
-        film.setMpaId(1);
+
+        // ИСПРАВЛЕНО
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        film.setMpa(mpa);
+
         Film addedFilm = filmStorage.addFilm(film);
 
         User user = new User();
@@ -158,7 +195,12 @@ class FilmDbStorageTest {
         film.setDescription("Test Description");
         film.setReleaseDate(LocalDate.of(2020, 1, 1));
         film.setDuration(120);
-        film.setMpaId(1);
+
+        // ИСПРАВЛЕНО
+        Mpa mpa = new Mpa();
+        mpa.setId(1);
+        film.setMpa(mpa);
+
         Film addedFilm = filmStorage.addFilm(film);
 
         User user = new User();
