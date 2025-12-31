@@ -21,10 +21,38 @@ public class MpaDbStorage implements MpaStorage {
     private final RowMapper<Mpa> mpaRowMapper = (rs, rowNum) -> {
         Mpa mpa = new Mpa();
         mpa.setId(rs.getInt("mpa_id"));
-        mpa.setCode(rs.getString("code"));
-        mpa.setName(rs.getString("code"));
+        String name = rs.getString("name");
+        mpa.setName(convertMpaNameToCode(name));
+
         return mpa;
     };
+
+    private String convertMpaNameToCode(String fullName) {
+        if (fullName == null) return null;
+
+        switch (fullName.trim()) {
+            case "General Audiences":
+            case "Для всех возрастов":
+                return "G";
+            case "Parental Guidance Suggested":
+            case "Рекомендуется присутствие родителей":
+                return "PG";
+            case "Parents Strongly Cautioned":
+            case "Родителям настоятельно рекомендуется сопровождение":
+                return "PG-13";
+            case "Restricted":
+            case "До 17 лет обязательно присутствие взрослого":
+                return "R";
+            case "Adults Only":
+            case "Только для взрослых":
+                return "NC-17";
+            default:
+                if (fullName.matches("^(G|PG|PG-13|R|NC-17)$")) {
+                    return fullName;
+                }
+                return fullName; // Оставляем как есть
+        }
+    }
 
     @Override
     public Collection<Mpa> getAllMpa() {

@@ -208,6 +208,7 @@ public class FilmDbStorage implements FilmStorage {
                 Mpa mpa = new Mpa();
                 mpa.setId(rs.getInt("mpa_id"));
                 mpa.setName(rs.getString("name"));
+                mpa.setName(convertMpaNameToCode(mpa.getName()));
                 return mpa;
             };
             return jdbcTemplate.queryForObject(sql, mpaRowMapper, mpaId);
@@ -222,7 +223,6 @@ public class FilmDbStorage implements FilmStorage {
             return;
         }
 
-        // Удаляем старые жанры
         String deleteSql = "DELETE FROM film_genres WHERE film_id = ?";
         jdbcTemplate.update(deleteSql, filmId);
 
@@ -233,8 +233,31 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    // Изменено: теперь принимает Set<Genre>
     private void updateFilmGenres(int filmId, Set<Genre> genres) {
         saveFilmGenres(filmId, genres);
+    }
+
+    private String convertMpaNameToCode(String fullName) {
+        if (fullName == null) return null;
+
+        switch (fullName.trim()) {
+            case "General Audiences":
+            case "Для всех возрастов":
+                return "G";
+            case "Parental Guidance Suggested":
+            case "Рекомендуется присутствие родителей":
+                return "PG";
+            case "Parents Strongly Cautioned":
+            case "Родителям настоятельно рекомендуется сопровождение":
+                return "PG-13";
+            case "Restricted":
+            case "До 17 лет обязательно присутствие взрослого":
+                return "R";
+            case "Adults Only":
+            case "Только для взрослых":
+                return "NC-17";
+            default:
+                return fullName;
+        }
     }
 }
