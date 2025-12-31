@@ -41,7 +41,6 @@ public class FilmMapper {
         return film;
     }
 
-    // Обратный маппинг (из Entity в DTO)
     public FilmDto toDto(Film film) {
         FilmDto filmDto = new FilmDto();
         filmDto.setId(film.getId());

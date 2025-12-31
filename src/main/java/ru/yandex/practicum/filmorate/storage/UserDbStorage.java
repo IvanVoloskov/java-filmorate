@@ -82,7 +82,6 @@ public class UserDbStorage implements UserStorage {
             user.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
             return user;
         } catch (Exception e) {
-            // Обработка дубликатов на уровне БД
             if (e.getMessage().toLowerCase().contains("unique") ||
                     e.getMessage().toLowerCase().contains("duplicate")) {
                 throw new ValidationException("Email уже используется");
@@ -153,9 +152,9 @@ public class UserDbStorage implements UserStorage {
             throw new ValidationException("Пользователь не может добавить сам себя в друзья");
         }
 
-        // Проверяем существование пользователей
-        getById(userId);  // Выбросит NotFoundException если нет
-        getById(friendId); // Выбросит NotFoundException если нет
+
+        getById(userId);
+        getById(friendId);
 
         String checkSql = "SELECT COUNT(*) FROM friendships WHERE user_id = ? AND friend_id = ?";
         Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, userId, friendId);
@@ -191,7 +190,6 @@ public class UserDbStorage implements UserStorage {
             throw new ValidationException("ID пользователя должен быть положительным");
         }
 
-        // Получаем только друзей, которых пользователь сам добавил
         String sql = "SELECT friend_id FROM friendships WHERE user_id = ?";
         List<Integer> friends = jdbcTemplate.queryForList(sql, Integer.class, userId);
         return new HashSet<>(friends);

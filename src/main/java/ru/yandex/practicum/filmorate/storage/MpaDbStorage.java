@@ -23,12 +23,11 @@ public class MpaDbStorage implements MpaStorage {
         this.mpaMapper = mpaMapper;
     }
 
-    // RowMapper для модели Mpa
     private final RowMapper<Mpa> mpaRowMapper = (rs, rowNum) -> {
         Mpa mpa = new Mpa();
         mpa.setId(rs.getInt("mpa_id"));
-        mpa.setCode(rs.getString("code"));      // Короткий код
-        mpa.setName(rs.getString("name"));      // Полное название
+        mpa.setCode(rs.getString("code"));
+        mpa.setName(rs.getString("name"));
         return mpa;
     };
 
@@ -48,13 +47,11 @@ public class MpaDbStorage implements MpaStorage {
         return jdbcTemplate.query(sql, mpaRowMapper);
     }
 
-    // Получение DTO по ID
     public MpaDto getMpaDtoById(int id) {
         Mpa mpa = getMpaById(id);
         return mpaMapper.toDto(mpa);
     }
 
-    // Получение всех DTO
     public Collection<MpaDto> getAllDto() {
         Collection<Mpa> allMpa = getAllMpa();
         return allMpa.stream()

@@ -62,9 +62,8 @@ public class FilmDbStorage implements FilmStorage {
             Set<Integer> likes = getLikes(film.getId());
             Set<Genre> genres = getFilmGenres(film.getId());
             film.setLikes(likes);
-            film.setGenres(genres); // Теперь Set<Genre>
+            film.setGenres(genres);
 
-            // Получаем полную информацию о MPA (с названием)
             if (film.getMpa() != null) {
                 Mpa fullMpa = getMpaById(film.getMpa().getId());
                 film.setMpa(fullMpa);
@@ -95,10 +94,9 @@ public class FilmDbStorage implements FilmStorage {
 
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
 
-        // Сохранение жанров фильма (теперь Set<Genre>)
         saveFilmGenres(film.getId(), film.getGenres());
 
-        return getById(film.getId()); // Возвращаем фильм с полной информацией
+        return getById(film.getId());
     }
 
     @Override
@@ -123,7 +121,6 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("Фильм с ID " + film.getId() + " не найден");
         }
 
-        // Обновление жанров фильма (теперь Set<Genre>)
         updateFilmGenres(film.getId(), film.getGenres());
 
         return getById(film.getId());
@@ -139,9 +136,8 @@ public class FilmDbStorage implements FilmStorage {
                 Set<Integer> likes = getLikes(id);
                 Set<Genre> genres = getFilmGenres(id);
                 film.setLikes(likes);
-                film.setGenres(genres); // Теперь Set<Genre>
+                film.setGenres(genres);
 
-                // Получаем полную информацию о MPA (с названием)
                 if (film.getMpa() != null) {
                     Mpa fullMpa = getMpaById(film.getMpa().getId());
                     film.setMpa(fullMpa);
