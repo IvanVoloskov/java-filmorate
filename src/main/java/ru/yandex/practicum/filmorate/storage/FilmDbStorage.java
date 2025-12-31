@@ -9,6 +9,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -34,8 +36,21 @@ public class FilmDbStorage implements FilmStorage {
         if (releaseDate != null) {
             film.setReleaseDate(releaseDate.toLocalDate());
         }
-        film.setMpaId(rs.getInt("mpa_id"));
+        Integer mpaId = rs.getInt("mpa_id");
+        if (!rs.wasNull() && mpaId != null) {
+            Mpa mpa = new Mpa();
+            mpa.setId(mpaId);
+            film.setMpa(mpa);
+        }
         return film;
+    };
+
+    // RowMapper для Genre
+    private final RowMapper<Genre> genreRowMapper = (rs, rowNum) -> {
+        Genre genre = new Genre();
+        genre.setId(rs.getInt("genre_id"));
+        genre.setName(rs.getString("name"));
+        return genre;
     };
 
     @Override
@@ -45,9 +60,15 @@ public class FilmDbStorage implements FilmStorage {
 
         for (Film film : films) {
             Set<Integer> likes = getLikes(film.getId());
-            Set<Integer> genres = getFilmGenres(film.getId());
+            Set<Genre> genres = getFilmGenres(film.getId());
             film.setLikes(likes);
-            film.setGenres(genres);
+            film.setGenres(genres); // Теперь Set<Genre>
+
+            // Получаем полную информацию о MPA (с названием)
+            if (film.getMpa() != null) {
+                Mpa fullMpa = getMpaById(film.getMpa().getId());
+                film.setMpa(fullMpa);
+            }
         }
 
         return films;
@@ -68,16 +89,16 @@ public class FilmDbStorage implements FilmStorage {
             ps.setString(2, film.getDescription());
             ps.setDate(3, Date.valueOf(film.getReleaseDate()));
             ps.setInt(4, film.getDuration());
-            ps.setInt(5, film.getMpaId());
+            ps.setInt(5, film.getMpa().getId());
             return ps;
         }, keyHolder);
 
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
 
-        // ДОБАВЛЕНО: сохранение жанров фильма
+        // Сохранение жанров фильма (теперь Set<Genre>)
         saveFilmGenres(film.getId(), film.getGenres());
 
-        return film;
+        return getById(film.getId()); // Возвращаем фильм с полной информацией
     }
 
     @Override
@@ -94,7 +115,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDescription(),
                 Date.valueOf(film.getReleaseDate()),
                 film.getDuration(),
-                film.getMpaId(),
+                film.getMpa().getId(),
                 film.getId()
         );
 
@@ -102,7 +123,7 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("Фильм с ID " + film.getId() + " не найден");
         }
 
-        // ДОБАВЛЕНО: обновление жанров фильма
+        // Обновление жанров фильма (теперь Set<Genre>)
         updateFilmGenres(film.getId(), film.getGenres());
 
         return getById(film.getId());
@@ -116,9 +137,15 @@ public class FilmDbStorage implements FilmStorage {
 
             if (film != null) {
                 Set<Integer> likes = getLikes(id);
-                Set<Integer> genres = getFilmGenres(id);
+                Set<Genre> genres = getFilmGenres(id);
                 film.setLikes(likes);
-                film.setGenres(genres);
+                film.setGenres(genres); // Теперь Set<Genre>
+
+                // Получаем полную информацию о MPA (с названием)
+                if (film.getMpa() != null) {
+                    Mpa fullMpa = getMpaById(film.getMpa().getId());
+                    film.setMpa(fullMpa);
+                }
             }
 
             return film;
@@ -158,35 +185,59 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    private Set<Integer> getFilmGenres(int filmId) {
-        String sql = "SELECT genre_id FROM film_genres WHERE film_id = ?";
+    // Изменено: теперь возвращает Set<Genre> с названиями
+    private Set<Genre> getFilmGenres(int filmId) {
+        String sql = """
+            SELECT g.genre_id, g.name 
+            FROM genres g 
+            JOIN film_genres fg ON g.genre_id = fg.genre_id 
+            WHERE fg.film_id = ?
+            ORDER BY g.genre_id
+            """;
         try {
-            return new HashSet<>(jdbcTemplate.queryForList(sql, Integer.class, filmId));
+            return new HashSet<>(jdbcTemplate.query(sql, genreRowMapper, filmId));
         } catch (Exception e) {
             log.error("Ошибка при получении жанров для фильма ID {}: {}", filmId, e.getMessage());
             return new HashSet<>();
         }
     }
 
-    // ДОБАВЛЕНО: метод для сохранения жанров фильма
-    private void saveFilmGenres(int filmId, Set<Integer> genres) {
+    // Метод для получения полной информации о MPA (с названием)
+    private Mpa getMpaById(int mpaId) {
+        String sql = "SELECT * FROM mpa_ratings WHERE mpa_id = ?";
+        try {
+            RowMapper<Mpa> mpaRowMapper = (rs, rowNum) -> {
+                Mpa mpa = new Mpa();
+                mpa.setId(rs.getInt("mpa_id"));
+                mpa.setName(rs.getString("name"));
+                return mpa;
+            };
+            return jdbcTemplate.queryForObject(sql, mpaRowMapper, mpaId);
+        } catch (Exception e) {
+            log.error("MPA с ID {} не найден", mpaId);
+            return null;
+        }
+    }
+
+    // Изменено: теперь принимает Set<Genre>
+    private void saveFilmGenres(int filmId, Set<Genre> genres) {
         if (genres == null || genres.isEmpty()) {
             return;
         }
 
-        // Удаляем старые жанры (на случай обновления)
+        // Удаляем старые жанры
         String deleteSql = "DELETE FROM film_genres WHERE film_id = ?";
         jdbcTemplate.update(deleteSql, filmId);
 
         // Добавляем новые жанры
         String insertSql = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
-        for (Integer genreId : genres) {
-            jdbcTemplate.update(insertSql, filmId, genreId);
+        for (Genre genre : genres) {
+            jdbcTemplate.update(insertSql, filmId, genre.getId());
         }
     }
 
-    // ДОБАВЛЕНО: метод для обновления жанров фильма
-    private void updateFilmGenres(int filmId, Set<Integer> genres) {
-        saveFilmGenres(filmId, genres); // Используем тот же метод
+    // Изменено: теперь принимает Set<Genre>
+    private void updateFilmGenres(int filmId, Set<Genre> genres) {
+        saveFilmGenres(filmId, genres);
     }
 }

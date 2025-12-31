@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.mapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,28 +12,64 @@ import java.util.Set;
 @Component
 public class FilmMapper {
 
-    public Film toEntity(FilmDto dto) {
+    public Film toEntity(FilmDto filmDto) {
         Film film = new Film();
-        film.setId(dto.getId());
-        film.setName(dto.getName());
-        film.setDescription(dto.getDescription());
-        film.setReleaseDate(dto.getReleaseDate());
-        film.setDuration(dto.getDuration());
+        film.setId(filmDto.getId());
+        film.setName(filmDto.getName());
+        film.setDescription(filmDto.getDescription());
+        film.setReleaseDate(filmDto.getReleaseDate());
+        film.setDuration(filmDto.getDuration());
 
-        if (dto.getMpa() != null && dto.getMpa().getId() != null) {
-            film.setMpaId(dto.getMpa().getId());
+        // Преобразование MPA
+        if (filmDto.getMpa() != null && filmDto.getMpa().getId() != null) {
+            Mpa mpa = new Mpa();
+            mpa.setId(filmDto.getMpa().getId());
+            film.setMpa(mpa);
         }
 
-        if (dto.getGenres() != null && !dto.getGenres().isEmpty()) {
-            Set<Integer> genreIds = new HashSet<>();
-            for (FilmDto.GenreId genre : dto.getGenres()) {
-                if (genre.getId() != null) {
-                    genreIds.add(genre.getId());
-                }
+        // Преобразование жанров
+        if (filmDto.getGenres() != null && !filmDto.getGenres().isEmpty()) {
+            Set<Genre> genres = new HashSet<>();
+            for (FilmDto.GenreDto genreDto : filmDto.getGenres()) {
+                Genre genre = new Genre();
+                genre.setId(genreDto.getId());
+                genres.add(genre);
             }
-            film.setGenres(genreIds);
+            film.setGenres(genres);
         }
 
         return film;
+    }
+
+    // Обратный маппинг (из Entity в DTO)
+    public FilmDto toDto(Film film) {
+        FilmDto filmDto = new FilmDto();
+        filmDto.setId(film.getId());
+        filmDto.setName(film.getName());
+        filmDto.setDescription(film.getDescription());
+        filmDto.setReleaseDate(film.getReleaseDate());
+        filmDto.setDuration(film.getDuration());
+
+        // MPA
+        if (film.getMpa() != null) {
+            FilmDto.MpaDto mpaDto = new FilmDto.MpaDto();
+            mpaDto.setId(film.getMpa().getId());
+            mpaDto.setName(film.getMpa().getName());
+            filmDto.setMpa(mpaDto);
+        }
+
+        // Жанры
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            Set<FilmDto.GenreDto> genreDtos = new HashSet<>();
+            for (Genre genre : film.getGenres()) {
+                FilmDto.GenreDto genreDto = new FilmDto.GenreDto();
+                genreDto.setId(genre.getId());
+                genreDto.setName(genre.getName());
+                genreDtos.add(genreDto);
+            }
+            filmDto.setGenres(genreDtos);
+        }
+
+        return filmDto;
     }
 }
