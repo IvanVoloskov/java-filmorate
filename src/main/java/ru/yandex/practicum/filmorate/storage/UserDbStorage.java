@@ -131,7 +131,8 @@ public class UserDbStorage implements UserStorage {
             User user = jdbcTemplate.queryForObject(sql, userRowMapper, id);
 
             if (user != null) {
-                String friendsSql = "SELECT friend_id FROM friendships WHERE user_id = ? AND status = 'ACCEPTED'";
+                // ВАЖНО: теперь друзья - это те, кого пользователь добавил (односторонняя дружба)
+                String friendsSql = "SELECT friend_id FROM friendships WHERE user_id = ?";
                 List<Integer> friends = jdbcTemplate.queryForList(friendsSql, Integer.class, id);
                 user.setFriends(new HashSet<>(friends));
             }
@@ -152,6 +153,7 @@ public class UserDbStorage implements UserStorage {
             throw new ValidationException("Пользователь не может добавить сам себя в друзья");
         }
 
+        // Проверяем существование пользователей
         User user = getById(userId);
         User friend = getById(friendId);
 
@@ -159,17 +161,16 @@ public class UserDbStorage implements UserStorage {
             throw new NotFoundException("Пользователь не найден");
         }
 
-        String checkSql = "SELECT COUNT(*) FROM friendships " +
-                "WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)";
-        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class,
-                userId, friendId, friendId, userId);
+        // Проверяем, не добавил ли уже в друзья (односторонняя проверка)
+        String checkSql = "SELECT COUNT(*) FROM friendships WHERE user_id = ? AND friend_id = ?";
+        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, userId, friendId);
 
         if (count > 0) {
-            throw new ValidationException("Пользователи уже являются друзьями");
+            throw new ValidationException("Пользователь уже добавил этого пользователя в друзья");
         }
 
-        String sql = "INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, 'ACCEPTED')";
-
+        // Вставляем только одну запись (односторонняя дружба)
+        String sql = "INSERT INTO friendships (user_id, friend_id) VALUES (?, ?)";
         jdbcTemplate.update(sql, userId, friendId);
     }
 
@@ -180,18 +181,20 @@ public class UserDbStorage implements UserStorage {
         }
 
         if (userId == friendId) {
-            throw new ValidationException("Пользователь не может удалить сам себя");
+            throw new ValidationException("Пользователь не может удалить самого себя");
         }
 
+        // Проверяем существование пользователей
         getById(userId);
         getById(friendId);
 
-        String sql = "DELETE FROM friendships WHERE (user_id = ? AND friend_id = ?) " +
-                "OR (user_id = ? AND friend_id = ?)";
-        int rowsDeleted = jdbcTemplate.update(sql, userId, friendId, friendId, userId);
+        // Удаляем только одну запись (односторонняя дружба)
+        String sql = "DELETE FROM friendships WHERE user_id = ? AND friend_id = ?";
+        int rowsDeleted = jdbcTemplate.update(sql, userId, friendId);
 
         if (rowsDeleted == 0) {
-            throw new NotFoundException("Дружба между пользователями не найдена");
+            throw new NotFoundException("Дружба не найдена (пользователь " + userId +
+                    " не добавлял " + friendId + " в друзья)");
         }
     }
 
@@ -201,7 +204,8 @@ public class UserDbStorage implements UserStorage {
             throw new ValidationException("ID пользователя должен быть положительным");
         }
 
-        String sql = "SELECT friend_id FROM friendships WHERE user_id = ? AND status = 'ACCEPTED'";
+        // Получаем только друзей, которых пользователь сам добавил
+        String sql = "SELECT friend_id FROM friendships WHERE user_id = ?";
         List<Integer> friends = jdbcTemplate.queryForList(sql, Integer.class, userId);
         return new HashSet<>(friends);
     }

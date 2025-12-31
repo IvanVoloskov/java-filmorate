@@ -37,6 +37,9 @@ public class UserService {
     }
 
     public void addFriend(int idUser, int idFriend) {
+        if (idUser == idFriend) {
+            throw new ValidationException("Нельзя добавить самого себя в друзья");
+        }
         userStorage.addFriend(idUser, idFriend);
         log.info("Пользователь {} добавил в друзья пользователя {}", idUser, idFriend);
     }
@@ -46,8 +49,18 @@ public class UserService {
         log.info("Пользователь {} удалил из друзей пользователя {}", idUser, idFriend);
     }
 
-    public Set<Integer> getAllFriends(int idUser) {
-        return userStorage.getFriends(idUser);
+    // Изменил: теперь возвращаем List<User> вместо Set<Integer>
+    public Collection<User> getAllFriends(int idUser) {
+        // Получаем ID друзей
+        Set<Integer> friendIds = userStorage.getFriends(idUser);
+
+        // Преобразуем ID в объекты User
+        Set<User> friends = new HashSet<>();
+        for (Integer friendId : friendIds) {
+            friends.add(userStorage.getById(friendId));
+        }
+
+        return friends;
     }
 
     public Collection<User> getCommonFriends(int idUser, int otherId) {
@@ -55,12 +68,15 @@ public class UserService {
             throw new ValidationException("Нельзя искать общих друзей с самим собой");
         }
 
-        User user = userStorage.getById(idUser);
-        User otherUser = userStorage.getById(otherId);
+        // Получаем списки друзей для обоих пользователей
+        Set<Integer> userFriends = userStorage.getFriends(idUser);
+        Set<Integer> otherFriends = userStorage.getFriends(otherId);
 
-        Set<Integer> commonFriendIds = new HashSet<>(user.getFriends());
-        commonFriendIds.retainAll(otherUser.getFriends()); // пересечения двух множеств
+        // Находим пересечение (общих друзей)
+        Set<Integer> commonFriendIds = new HashSet<>(userFriends);
+        commonFriendIds.retainAll(otherFriends);
 
+        // Преобразуем ID в объекты User
         Set<User> commonFriends = new HashSet<>();
         for (Integer friendId : commonFriendIds) {
             commonFriends.add(userStorage.getById(friendId));
@@ -71,6 +87,4 @@ public class UserService {
 
         return commonFriends;
     }
-
-
 }

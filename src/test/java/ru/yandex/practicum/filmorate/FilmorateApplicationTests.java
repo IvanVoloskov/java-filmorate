@@ -7,10 +7,15 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,10 +28,87 @@ class FilmorateApplicationTests {
 
     @BeforeEach
     void setup() {
-        InMemoryFilmStorage filmStorage = new InMemoryFilmStorage();
-        FilmService filmService = new FilmService(filmStorage);
+        FilmStorage filmStorage = new SimpleFilmStorage();
+        MpaStorage mpaStorage = new SimpleMpaStorage();
+        GenreStorage genreStorage = new SimpleGenreStorage();
+
+        FilmService filmService = new FilmService(filmStorage, mpaStorage, genreStorage);
         filmMapper = new FilmMapper();
         filmController = new FilmController(filmService, filmMapper);
+    }
+
+    static class SimpleFilmStorage implements FilmStorage {
+        @Override
+        public Collection<Film> getAllFilms() {
+            return new HashSet<>();
+        }
+
+        @Override
+        public Film addFilm(Film film) {
+            film.setId(1);
+            return film;
+        }
+
+        @Override
+        public Film updateFilm(Film film) {
+            return film;
+        }
+
+        @Override
+        public Film getById(int id) {
+            Film film = new Film();
+            film.setId(id);
+            return film;
+        }
+
+        @Override
+        public void addLike(int filmId, int userId) {
+        }
+
+        @Override
+        public void removeLike(int filmId, int userId) {
+        }
+
+        @Override
+        public Set<Integer> getLikes(int filmId) {
+            return new HashSet<>();
+        }
+    }
+
+    static class SimpleMpaStorage implements MpaStorage {
+        @Override
+        public Mpa getMpaById(int id) {
+            if (id == 1) {
+                Mpa mpa = new Mpa();
+                mpa.setId(1);
+                mpa.setName("G");
+                return mpa;
+            }
+            return null;
+        }
+
+        @Override
+        public Collection<Mpa> getAllMpa() {
+            return new HashSet<>();
+        }
+    }
+
+    static class SimpleGenreStorage implements GenreStorage {
+        @Override
+        public Genre getGenreById(int id) {
+            if (id == 1 || id == 2) {
+                Genre genre = new Genre();
+                genre.setId(id);
+                genre.setName(id == 1 ? "Комедия" : "Драма");
+                return genre;
+            }
+            return null;
+        }
+
+        @Override
+        public Collection<Genre> getAllGenres() {
+            return new HashSet<>();
+        }
     }
 
     @Test
@@ -36,7 +118,6 @@ class FilmorateApplicationTests {
         filmDto.setReleaseDate(LocalDate.of(2000, 1, 1));
         filmDto.setDuration(120);
 
-        // Создаем объект MPA - ИСПРАВЛЕНО: MpaDto вместо MpaId
         FilmDto.MpaDto mpaDto = new FilmDto.MpaDto();
         mpaDto.setId(1);
         filmDto.setMpa(mpaDto);
@@ -54,7 +135,6 @@ class FilmorateApplicationTests {
         filmDto.setReleaseDate(LocalDate.of(2000, 1, 1));
         filmDto.setDuration(120);
 
-        // ИСПРАВЛЕНО: MpaDto вместо MpaId
         FilmDto.MpaDto mpaDto = new FilmDto.MpaDto();
         mpaDto.setId(1);
         filmDto.setMpa(mpaDto);
@@ -72,7 +152,6 @@ class FilmorateApplicationTests {
         filmDto.setReleaseDate(LocalDate.of(1800, 1, 1));
         filmDto.setDuration(120);
 
-        // ИСПРАВЛЕНО: MpaDto вместо MpaId
         FilmDto.MpaDto mpaDto = new FilmDto.MpaDto();
         mpaDto.setId(1);
         filmDto.setMpa(mpaDto);
@@ -90,7 +169,6 @@ class FilmorateApplicationTests {
         filmDto.setReleaseDate(LocalDate.of(2000, 1, 1));
         filmDto.setDuration(0);
 
-        // ИСПРАВЛЕНО: MpaDto вместо MpaId
         FilmDto.MpaDto mpaDto = new FilmDto.MpaDto();
         mpaDto.setId(1);
         filmDto.setMpa(mpaDto);
@@ -108,7 +186,6 @@ class FilmorateApplicationTests {
         filmDto.setReleaseDate(LocalDate.of(2000, 1, 1));
         filmDto.setDuration(120);
 
-        // ИСПРАВЛЕНО: MpaDto вместо MpaId
         FilmDto.MpaDto mpaDto = new FilmDto.MpaDto();
         mpaDto.setId(1);
         filmDto.setMpa(mpaDto);
@@ -118,7 +195,6 @@ class FilmorateApplicationTests {
         assertNotNull(addedFilm);
         assertEquals("Фильм", addedFilm.getName());
         assertEquals(1, addedFilm.getId());
-        // ИСПРАВЛЕНО: Теперь получаем MPA объект и проверяем его ID
         assertNotNull(addedFilm.getMpa());
         assertEquals(1, addedFilm.getMpa().getId());
     }
@@ -131,12 +207,10 @@ class FilmorateApplicationTests {
         filmDto.setReleaseDate(LocalDate.of(2000, 1, 1));
         filmDto.setDuration(120);
 
-        // ИСПРАВЛЕНО: MpaDto вместо MpaId
         FilmDto.MpaDto mpaDto = new FilmDto.MpaDto();
         mpaDto.setId(1);
         filmDto.setMpa(mpaDto);
 
-        // ИСПРАВЛЕНО: GenreDto вместо GenreId
         Set<FilmDto.GenreDto> genres = new HashSet<>();
         FilmDto.GenreDto genre1 = new FilmDto.GenreDto();
         genre1.setId(1);
@@ -156,7 +230,6 @@ class FilmorateApplicationTests {
         assertNotNull(addedFilm.getGenres());
         assertEquals(2, addedFilm.getGenres().size());
 
-        // ИСПРАВЛЕНО: Теперь жанры это Set<Genre>, проверяем по ID
         boolean hasGenre1 = addedFilm.getGenres().stream().anyMatch(g -> g.getId() == 1);
         boolean hasGenre2 = addedFilm.getGenres().stream().anyMatch(g -> g.getId() == 2);
         assertTrue(hasGenre1);

@@ -29,16 +29,26 @@ public class MpaDbStorage implements MpaStorage {
     @Override
     public Collection<Mpa> getAllMpa() {
         String sql = "SELECT * FROM mpa_ratings ORDER BY mpa_id";
-        return jdbcTemplate.query(sql, mpaRowMapper);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Mpa mpa = new Mpa();
+            mpa.setId(rs.getInt("mpa_id"));
+            mpa.setName(rs.getString("name"));
+            return mpa;
+        });
     }
 
     @Override
     public Mpa getMpaById(int id) {
         String sql = "SELECT * FROM mpa_ratings WHERE mpa_id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, mpaRowMapper, id);
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+                Mpa mpa = new Mpa();
+                mpa.setId(rs.getInt("mpa_id"));
+                mpa.setName(rs.getString("name"));
+                return mpa;
+            }, id);
         } catch (Exception e) {
-            throw new NotFoundException("Рейтинг с id: " + id + " не найден.");
+            throw new NotFoundException("MPA с ID " + id + " не найден");
         }
     }
 }

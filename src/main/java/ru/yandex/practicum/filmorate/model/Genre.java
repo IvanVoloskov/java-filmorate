@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class Genre {
-    int id;
+    Integer id;
     @NotBlank
     String name;
 }

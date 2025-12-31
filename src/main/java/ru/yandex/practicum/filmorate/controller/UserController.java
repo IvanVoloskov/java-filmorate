@@ -6,10 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 @RequiredArgsConstructor
 @RestController
@@ -41,15 +38,8 @@ public class UserController {
 
     @GetMapping("/{idUser}/friends")
     public Collection<User> getAllFriends(@PathVariable Integer idUser) {
-        Set<Integer> friendIds = userService.getAllFriends(idUser);
-
-        // Преобразуем ID в объекты User
-        List<User> friends = new ArrayList<>();
-        for (Integer friendId : friendIds) {
-            friends.add(userService.getById(friendId));
-        }
-
-        return friends;
+        // Просто делегируем сервису, он сам проверит существование пользователя
+        return userService.getAllFriends(idUser);
     }
 
     @GetMapping("/{idUser}/friends/common/{otherId}")
@@ -71,5 +61,4 @@ public class UserController {
     public User getUserById(@PathVariable Integer id) {
         return userService.getById(id);
     }
-
 }

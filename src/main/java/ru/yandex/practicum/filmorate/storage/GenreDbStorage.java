@@ -30,16 +30,26 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public Collection<Genre> getAllGenres() {
         String sql = "SELECT * FROM genres ORDER BY genre_id";
-        return jdbcTemplate.query(sql, genreRowMapper);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            Genre genre = new Genre();
+            genre.setId(rs.getInt("genre_id"));
+            genre.setName(rs.getString("name"));
+            return genre;
+        });
     }
 
     @Override
     public Genre getGenreById(int id) {
         String sql = "SELECT * FROM genres WHERE genre_id = ?";
         try {
-            return jdbcTemplate.queryForObject(sql, genreRowMapper, id);
+            return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+                Genre genre = new Genre();
+                genre.setId(rs.getInt("genre_id"));
+                genre.setName(rs.getString("name"));
+                return genre;
+            }, id);
         } catch (Exception e) {
-            throw new NotFoundException("Жанр с id: " + id + " не найден.");
+            throw new NotFoundException("Жанр с ID " + id + " не найден");
         }
     }
 }

@@ -192,10 +192,11 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE fg.film_id = ? " +
                 "ORDER BY g.genre_id";
         try {
-            return new HashSet<>(jdbcTemplate.query(sql, genreRowMapper, filmId));
+            List<Genre> genresList = jdbcTemplate.query(sql, genreRowMapper, filmId);
+            return new LinkedHashSet<>(genresList);
         } catch (Exception e) {
             log.error("Ошибка при получении жанров для фильма ID {}: {}", filmId, e.getMessage());
-            return new HashSet<>();
+            return new LinkedHashSet<>();
         }
     }
 
@@ -216,7 +217,6 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    // Изменено: теперь принимает Set<Genre>
     private void saveFilmGenres(int filmId, Set<Genre> genres) {
         if (genres == null || genres.isEmpty()) {
             return;
