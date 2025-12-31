@@ -49,12 +49,11 @@ public class UserService {
         log.info("Пользователь {} удалил из друзей пользователя {}", idUser, idFriend);
     }
 
-    // Изменил: теперь возвращаем List<User> вместо Set<Integer>
     public Collection<User> getAllFriends(int idUser) {
-        // Получаем ID друзей
+        log.info("Получение друзей пользователя {}", idUser);
         Set<Integer> friendIds = userStorage.getFriends(idUser);
+        log.info("Найдено {} друзей у пользователя {}", friendIds.size(), idUser);
 
-        // Преобразуем ID в объекты User
         Set<User> friends = new HashSet<>();
         for (Integer friendId : friendIds) {
             friends.add(userStorage.getById(friendId));
@@ -68,15 +67,12 @@ public class UserService {
             throw new ValidationException("Нельзя искать общих друзей с самим собой");
         }
 
-        // Получаем списки друзей для обоих пользователей
         Set<Integer> userFriends = userStorage.getFriends(idUser);
         Set<Integer> otherFriends = userStorage.getFriends(otherId);
 
-        // Находим пересечение (общих друзей)
         Set<Integer> commonFriendIds = new HashSet<>(userFriends);
         commonFriendIds.retainAll(otherFriends);
 
-        // Преобразуем ID в объекты User
         Set<User> commonFriends = new HashSet<>();
         for (Integer friendId : commonFriendIds) {
             commonFriends.add(userStorage.getById(friendId));

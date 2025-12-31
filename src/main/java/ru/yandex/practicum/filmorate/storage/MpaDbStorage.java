@@ -32,7 +32,7 @@ public class MpaDbStorage implements MpaStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Mpa mpa = new Mpa();
             mpa.setId(rs.getInt("mpa_id"));
-            mpa.setName(rs.getString("name"));
+            mpa.setCode(rs.getString("code"));
             return mpa;
         });
     }
@@ -44,7 +44,7 @@ public class MpaDbStorage implements MpaStorage {
             return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
                 Mpa mpa = new Mpa();
                 mpa.setId(rs.getInt("mpa_id"));
-                mpa.setName(rs.getString("name"));
+                mpa.setCode(rs.getString("code"));
                 return mpa;
             }, id);
         } catch (Exception e) {

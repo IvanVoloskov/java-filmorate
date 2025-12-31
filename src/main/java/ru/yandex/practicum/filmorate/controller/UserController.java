@@ -38,7 +38,7 @@ public class UserController {
 
     @GetMapping("/{idUser}/friends")
     public Collection<User> getAllFriends(@PathVariable Integer idUser) {
-        // Просто делегируем сервису, он сам проверит существование пользователя
+        userService.getById(idUser);
         return userService.getAllFriends(idUser);
     }
 

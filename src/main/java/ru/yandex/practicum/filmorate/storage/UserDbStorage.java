@@ -131,15 +131,16 @@ public class UserDbStorage implements UserStorage {
             User user = jdbcTemplate.queryForObject(sql, userRowMapper, id);
 
             if (user != null) {
-                // ВАЖНО: теперь друзья - это те, кого пользователь добавил (односторонняя дружба)
                 String friendsSql = "SELECT friend_id FROM friendships WHERE user_id = ?";
                 List<Integer> friends = jdbcTemplate.queryForList(friendsSql, Integer.class, id);
                 user.setFriends(new HashSet<>(friends));
             }
 
             return user;
-        } catch (Exception e) {
+        } catch (NotFoundException e) {
             throw new NotFoundException("Пользователь с id = " + id + " не найден");
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при получении пользователя", e);
         }
     }
 
