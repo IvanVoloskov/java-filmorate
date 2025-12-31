@@ -185,15 +185,12 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    // Изменено: теперь возвращает Set<Genre> с названиями
     private Set<Genre> getFilmGenres(int filmId) {
-        String sql = """
-            SELECT g.genre_id, g.name 
-            FROM genres g 
-            JOIN film_genres fg ON g.genre_id = fg.genre_id 
-            WHERE fg.film_id = ?
-            ORDER BY g.genre_id
-            """;
+        String sql = "SELECT g.genre_id, g.name " +
+                "FROM genres g " +
+                "JOIN film_genres fg ON g.genre_id = fg.genre_id " +
+                "WHERE fg.film_id = ? " +
+                "ORDER BY g.genre_id";
         try {
             return new HashSet<>(jdbcTemplate.query(sql, genreRowMapper, filmId));
         } catch (Exception e) {
