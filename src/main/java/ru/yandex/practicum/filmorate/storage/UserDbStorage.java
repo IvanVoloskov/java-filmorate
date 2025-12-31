@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -137,10 +138,8 @@ public class UserDbStorage implements UserStorage {
             }
 
             return user;
-        } catch (NotFoundException e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Пользователь с id = " + id + " не найден");
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка при получении пользователя", e);
         }
     }
 
@@ -155,14 +154,9 @@ public class UserDbStorage implements UserStorage {
         }
 
         // Проверяем существование пользователей
-        User user = getById(userId);
-        User friend = getById(friendId);
+        getById(userId);  // Выбросит NotFoundException если нет
+        getById(friendId); // Выбросит NotFoundException если нет
 
-        if (user == null || friend == null) {
-            throw new NotFoundException("Пользователь не найден");
-        }
-
-        // Проверяем, не добавил ли уже в друзья (односторонняя проверка)
         String checkSql = "SELECT COUNT(*) FROM friendships WHERE user_id = ? AND friend_id = ?";
         Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, userId, friendId);
 
@@ -170,7 +164,6 @@ public class UserDbStorage implements UserStorage {
             throw new ValidationException("Пользователь уже добавил этого пользователя в друзья");
         }
 
-        // Вставляем только одну запись (односторонняя дружба)
         String sql = "INSERT INTO friendships (user_id, friend_id) VALUES (?, ?)";
         jdbcTemplate.update(sql, userId, friendId);
     }
@@ -185,18 +178,11 @@ public class UserDbStorage implements UserStorage {
             throw new ValidationException("Пользователь не может удалить самого себя");
         }
 
-        // Проверяем существование пользователей
         getById(userId);
         getById(friendId);
 
-        // Удаляем только одну запись (односторонняя дружба)
         String sql = "DELETE FROM friendships WHERE user_id = ? AND friend_id = ?";
         int rowsDeleted = jdbcTemplate.update(sql, userId, friendId);
-
-        if (rowsDeleted == 0) {
-            throw new NotFoundException("Дружба не найдена (пользователь " + userId +
-                    " не добавлял " + friendId + " в друзья)");
-        }
     }
 
     @Override

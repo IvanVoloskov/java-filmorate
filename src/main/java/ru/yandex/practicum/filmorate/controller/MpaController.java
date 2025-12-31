@@ -2,24 +2,24 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.MpaStorage;
+import ru.yandex.practicum.filmorate.dto.MpaDto;
+import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.util.Collection;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/mpa")
+@RequiredArgsConstructor
 public class MpaController {
-    private final MpaStorage mpaStorage;
-
-    @GetMapping
-    public Collection<Mpa> getAllMpa() {
-        return mpaStorage.getAllMpa();
-    }
+    private final MpaService mpaService;
 
     @GetMapping("/{id}")
-    public Mpa getMpaById(@PathVariable Integer id) {
-        return mpaStorage.getMpaById(id);
+    public MpaDto getMpaById(@PathVariable Integer id) {
+        return mpaService.getMpaDtoById(id);
+    }
+
+    @GetMapping
+    public Collection<MpaDto> getAllMpa() {
+        return mpaService.getAllDto();
     }
 }
