@@ -36,6 +36,12 @@ public class FilmController {
         return filmService.updateFilm(film);
     }
 
+    @PutMapping
+    public Film updateFilm(@Valid @RequestBody FilmDto filmDto) {
+        Film film = filmMapper.toEntity(filmDto);
+        return filmService.updateFilm(film);
+    }
+
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable Integer id) {
         return filmService.getById(id);

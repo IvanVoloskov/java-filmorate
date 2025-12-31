@@ -28,6 +28,11 @@ public class UserController {
         return userService.addUser(user);
     }
 
+    @PutMapping
+    public User updateUser(@Valid @RequestBody User user) {
+        return userService.updateUser(user);
+    }
+
     @PutMapping("/{id}")
     public User updateUser(@PathVariable Integer id, @Valid @RequestBody User user) {
         user.setId(id);
