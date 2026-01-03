@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Component
@@ -29,7 +29,7 @@ public class FilmMapper {
 
         // Преобразование жанров
         if (filmDto.getGenres() != null && !filmDto.getGenres().isEmpty()) {
-            Set<Genre> genres = new HashSet<>();
+            Set<Genre> genres = new LinkedHashSet<>();
             for (FilmDto.GenreDto genreDto : filmDto.getGenres()) {
                 Genre genre = new Genre();
                 genre.setId(genreDto.getId());
@@ -59,7 +59,7 @@ public class FilmMapper {
 
         // Жанры
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            Set<FilmDto.GenreDto> genreDtos = new HashSet<>();
+            Set<FilmDto.GenreDto> genreDtos = new LinkedHashSet<>();
             for (Genre genre : film.getGenres()) {
                 FilmDto.GenreDto genreDto = new FilmDto.GenreDto();
                 genreDto.setId(genre.getId());
