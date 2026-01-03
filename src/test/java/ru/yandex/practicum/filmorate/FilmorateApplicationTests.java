@@ -24,17 +24,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class FilmorateApplicationTests {
 
     private FilmController filmController;
-    private FilmMapper filmMapper;
 
     @BeforeEach
     void setup() {
         FilmStorage filmStorage = new SimpleFilmStorage();
         MpaStorage mpaStorage = new SimpleMpaStorage();
         GenreStorage genreStorage = new SimpleGenreStorage();
+        FilmMapper filmMapper = new FilmMapper();
 
-        FilmService filmService = new FilmService(filmStorage, mpaStorage, genreStorage);
-        filmMapper = new FilmMapper();
-        filmController = new FilmController(filmService, filmMapper);
+        FilmService filmService = new FilmService(filmStorage, mpaStorage, genreStorage, filmMapper);
+        filmController = new FilmController(filmService);
     }
 
     static class SimpleFilmStorage implements FilmStorage {
@@ -190,13 +189,13 @@ class FilmorateApplicationTests {
         mpaDto.setId(1);
         filmDto.setMpa(mpaDto);
 
-        Film addedFilm = filmController.addFilm(filmDto);
+        FilmDto addedFilmDto = filmController.addFilm(filmDto);
 
-        assertNotNull(addedFilm);
-        assertEquals("Фильм", addedFilm.getName());
-        assertEquals(1, addedFilm.getId());
-        assertNotNull(addedFilm.getMpa());
-        assertEquals(1, addedFilm.getMpa().getId());
+        assertNotNull(addedFilmDto);
+        assertEquals("Фильм", addedFilmDto.getName());
+        assertEquals(Integer.valueOf(1), addedFilmDto.getId());
+        assertNotNull(addedFilmDto.getMpa());
+        assertEquals(Integer.valueOf(1), addedFilmDto.getMpa().getId());
     }
 
     @Test
@@ -220,18 +219,18 @@ class FilmorateApplicationTests {
         genres.add(genre2);
         filmDto.setGenres(genres);
 
-        Film addedFilm = filmController.addFilm(filmDto);
+        FilmDto addedFilmDto = filmController.addFilm(filmDto);
 
-        assertNotNull(addedFilm);
-        assertEquals("Фильм с жанрами", addedFilm.getName());
-        assertEquals(1, addedFilm.getId());
-        assertNotNull(addedFilm.getMpa());
-        assertEquals(1, addedFilm.getMpa().getId());
-        assertNotNull(addedFilm.getGenres());
-        assertEquals(2, addedFilm.getGenres().size());
+        assertNotNull(addedFilmDto);
+        assertEquals("Фильм с жанрами", addedFilmDto.getName());
+        assertEquals(Integer.valueOf(1), addedFilmDto.getId());
+        assertNotNull(addedFilmDto.getMpa());
+        assertEquals(Integer.valueOf(1), addedFilmDto.getMpa().getId());
+        assertNotNull(addedFilmDto.getGenres());
+        assertEquals(2, addedFilmDto.getGenres().size());
 
-        boolean hasGenre1 = addedFilm.getGenres().stream().anyMatch(g -> g.getId() == 1);
-        boolean hasGenre2 = addedFilm.getGenres().stream().anyMatch(g -> g.getId() == 2);
+        boolean hasGenre1 = addedFilmDto.getGenres().stream().anyMatch(g -> g.getId() == 1);
+        boolean hasGenre2 = addedFilmDto.getGenres().stream().anyMatch(g -> g.getId() == 2);
         assertTrue(hasGenre1);
         assertTrue(hasGenre2);
     }

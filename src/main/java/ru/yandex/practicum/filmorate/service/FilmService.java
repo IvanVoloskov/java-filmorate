@@ -2,8 +2,10 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -15,7 +17,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,33 +24,44 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
+    private final FilmMapper filmMapper;
 
     private static final LocalDate CINEMA_BIRTHDAY = LocalDate.of(1895, 12, 28);
 
-    public Collection<Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+    public Collection<FilmDto> getAllFilms() {
+        Collection<Film> films = filmStorage.getAllFilms();
+        Collection<FilmDto> filmDtos = new java.util.ArrayList<>();
+        for (Film film : films) {
+            filmDtos.add(filmMapper.toDto(film));
+        }
+        return filmDtos;
     }
 
-    public Film addFilm(Film film) {
+    public FilmDto addFilm(FilmDto filmDto) {
+        Film film = filmMapper.toEntity(filmDto);
         validateFilm(film);
         validateMpaAndGenres(film);
-        return filmStorage.addFilm(film);
+        Film savedFilm = filmStorage.addFilm(film);
+        return filmMapper.toDto(savedFilm);
     }
 
-    public Film updateFilm(Film film) {
-        if (film.getId() == null) {
+    public FilmDto updateFilm(FilmDto filmDto) {
+        if (filmDto.getId() == null) {
             throw new ValidationException("ID фильма не может быть null");
         }
 
-        filmStorage.getById(film.getId());
+        filmStorage.getById(filmDto.getId());
 
+        Film film = filmMapper.toEntity(filmDto);
         validateFilm(film);
         validateMpaAndGenres(film);
-        return filmStorage.updateFilm(film);
+        Film updatedFilm = filmStorage.updateFilm(film);
+        return filmMapper.toDto(updatedFilm);
     }
 
-    public Film getById(int id) {
-        return filmStorage.getById(id);
+    public FilmDto getById(int id) {
+        Film film = filmStorage.getById(id);
+        return filmMapper.toDto(film);
     }
 
     public void addLike(int filmId, int userId) {
@@ -60,13 +72,24 @@ public class FilmService {
         filmStorage.removeLike(filmId, userId);
     }
 
-    public Collection<Film> getPopularFilms(int count) {
-        return filmStorage.getAllFilms().stream()
-                .sorted((f1, f2) -> Integer.compare(
-                        f2.getLikes() != null ? f2.getLikes().size() : 0,
-                        f1.getLikes() != null ? f1.getLikes().size() : 0))
-                .limit(count)
-                .collect(Collectors.toList());
+    public Collection<FilmDto> getPopularFilms(int count) {
+        Collection<Film> films = filmStorage.getAllFilms();
+
+        java.util.List<Film> filmList = new java.util.ArrayList<>(films);
+        filmList.sort((f1, f2) -> {
+            int likes1 = f1.getLikes() != null ? f1.getLikes().size() : 0;
+            int likes2 = f2.getLikes() != null ? f2.getLikes().size() : 0;
+            return Integer.compare(likes2, likes1);
+        });
+
+        Collection<FilmDto> popularFilms = new java.util.ArrayList<>();
+        int taken = 0;
+        for (Film film : filmList) {
+            if (taken >= count) break;
+            popularFilms.add(filmMapper.toDto(film));
+            taken++;
+        }
+        return popularFilms;
     }
 
     private void validateFilm(Film film) {

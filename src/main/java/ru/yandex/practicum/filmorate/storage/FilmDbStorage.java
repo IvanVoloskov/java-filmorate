@@ -204,7 +204,7 @@ public class FilmDbStorage implements FilmStorage {
                 Mpa mpa = new Mpa();
                 mpa.setId(rs.getInt("mpa_id"));
                 mpa.setName(rs.getString("name"));
-                mpa.setName(convertMpaNameToCode(mpa.getName()));
+                mpa.setName(rs.getString("code"));
                 return mpa;
             };
             return jdbcTemplate.queryForObject(sql, mpaRowMapper, mpaId);
