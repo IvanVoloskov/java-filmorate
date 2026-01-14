@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +24,13 @@ public class ErrorHandler {
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
         log.warn("Объект не найден: {}", e.getMessage());
         return new ErrorResponse("error", e.getMessage());
+    }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND) // 404
+    public ErrorResponse handleEmptyResultDataAccessException(final EmptyResultDataAccessException e) {
+        log.warn("Запись не найдена в БД: {}", e.getMessage());
+        return new ErrorResponse("error", "Объект не найден");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

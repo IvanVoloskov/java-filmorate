@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Qualifier;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,9 +10,10 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
-@Component
+@Qualifier("filmMemoryStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
 
@@ -25,7 +26,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film addFilm(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.warn("Попытка добавить фильм без названия");
-            throw new ValidationException("название не может быть пустым");
+            throw new ValidationException("Название не может быть пустым");
         }
         if (film.getDescription() != null && film.getDescription().length() > 200) {
             log.warn("описание фильм слишком большое: {}", film.getDescription().length());
@@ -38,7 +39,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         if (film.getDuration() <= 0) {
             log.warn("Некорректная продолжительность фильма {}", film.getDuration());
-            throw new ValidationException("Продолжительность фильма всегда положительная!");
+            throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
         film.setId(getNextId());
         films.put(film.getId(), film);
@@ -90,6 +91,35 @@ public class InMemoryFilmStorage implements FilmStorage {
         } else {
             throw new NotFoundException("Фильма с таким id нет");
         }
+    }
+
+    @Override
+    public void addLike(int filmId, int userId) {
+        Film film = films.get(filmId);
+        if (film == null) {
+            throw new NotFoundException("Фильм с id = " + filmId + " не найден");
+        }
+        film.getLikes().add(userId);
+        log.info("Пользователь {} поставил лайк фильму {} (in-memory)", userId, filmId);
+    }
+
+    @Override
+    public void removeLike(int filmId, int userId) {
+        Film film = films.get(filmId);
+        if (film == null) {
+            throw new NotFoundException("Фильм с id = " + filmId + " не найден");
+        }
+        film.getLikes().remove(userId);
+        log.info("Пользователь {} убрал лайк фильму {} (in-memory)", userId, filmId);
+    }
+
+    @Override
+    public Set<Integer> getLikes(int filmId) {
+        Film film = films.get(filmId);
+        if (film == null) {
+            throw new NotFoundException("Фильм с id = " + filmId + " не найден");
+        }
+        return film.getLikes();
     }
 
     private int getNextId() {
